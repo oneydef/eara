@@ -1,0 +1,32 @@
+name: Sync from canonical repository
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-from-canonical
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out mirror
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebase mirror metadata onto canonical main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add canonical https://github.com/oneydef/EarA-linux.git
+          git fetch canonical main --tags --prune
+          git rebase canonical/main
+          git push origin main --force-with-lease
+          git push origin --tags
