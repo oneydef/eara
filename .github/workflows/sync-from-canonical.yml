@@ -6,7 +6,7 @@ on:
     - cron: "17 */6 * * *"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: sync-from-canonical
@@ -19,7 +19,9 @@ jobs:
       - name: Check out mirror
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
+          ssh-key: ${{ secrets.CANONICAL_SYNC_SSH_KEY }}
 
       - name: Rebase mirror metadata onto canonical main
         run: |
